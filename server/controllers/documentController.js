@@ -7,7 +7,7 @@ const pdfParse = require("pdf-parse");
 
 const fetchProcessedDocuments = async (req, res) => {
   try {
-    const documents = await Documents.find(); // Fetch all documents
+    const documents = await Documents.find();
     res.json({ success: true, documents });
   } catch (error) {
     console.error("Error fetching documents:", error);

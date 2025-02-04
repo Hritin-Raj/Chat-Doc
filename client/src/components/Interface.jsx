@@ -42,8 +42,8 @@ const DocumentQABot = () => {
       alert("File size must be less than 10MB");
       return;
     }
-    if (newFile.type !== "application/pdf") {
-      alert("Only PDF files are supported");
+    if (!["application/pdf", "text/plain"].includes(newFile.type)) {
+      alert("Only PDF and TXT files are supported");
       return;
     }
 
@@ -214,7 +214,7 @@ const DocumentQABot = () => {
                 className="hidden"
                 ref={fileInputRef}
                 onChange={handleFileUpload}
-                accept=".pdf"
+                accept=".pdf, .txt"
               />
               <Button
                 variant="outlined"
@@ -222,7 +222,7 @@ const DocumentQABot = () => {
                 startIcon={<Upload />}
                 disabled={processing || uploadedFiles.length >= 5}
               >
-                Upload PDF ({uploadedFiles.length}/5)
+                Upload PDF/TXT ({uploadedFiles.length}/5)
               </Button>
             </div>
 

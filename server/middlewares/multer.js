@@ -17,6 +17,25 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+// File filter for accepting only .pdf and .txt files
+const fileFilter = (req, file, cb) => {
+    const allowedMimeTypes = ["application/pdf", "text/plain"];
+    const allowedExtensions = [".pdf", ".txt"];
+
+    const extname = allowedExtensions.includes(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedMimeTypes.includes(file.mimetype);
+
+    if (extname && mimetype) {
+        return cb(null, true);
+    } else {
+        return cb(new Error("Only .pdf and .txt files are allowed!"), false);
+    }
+};
+
+
+const upload = multer({
+    storage,
+    fileFilter
+});
 
 module.exports = upload;
