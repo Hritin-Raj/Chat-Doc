@@ -1,9 +1,8 @@
 import { useState } from 'react';
+import DocumentQABot from './components/Interface.jsx';
 
 function App() {
-  return (
-    <h1>Hello world.</h1>
-  )
+  return <DocumentQABot />
 }
 
 export default App
