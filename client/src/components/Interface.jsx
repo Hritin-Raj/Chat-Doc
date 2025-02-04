@@ -57,7 +57,7 @@ const DocumentQABot = () => {
     const formData = new FormData();
 
     uploadedFiles.forEach((file) => {
-      formData.append("files", file);
+      formData.append("documents", file);
     });
 
     try {
@@ -70,7 +70,7 @@ const DocumentQABot = () => {
       );
 
       if (response.data.success) {
-        setProcessedFiles(response.data.processedFiles);
+        setProcessedFiles(response.data.documents);
         setUploadedFiles([]); // Clear uploaded files after processing
       } else {
         alert("Error processing files");

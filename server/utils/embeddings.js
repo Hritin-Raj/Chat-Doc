@@ -12,7 +12,7 @@ export const generateEmbedding = async (text) => {
     const url = `https://api-inference.huggingface.co/pipeline/feature-extraction/${model}`;
 
     const response = await axios.post(url, 
-      { inputs: [text] }, 
+      { inputs: text }, 
       { headers: { Authorization: `Bearer ${HF_API_KEY}` }
     });
 
@@ -22,4 +22,4 @@ export const generateEmbedding = async (text) => {
   }
 };
 // console.log("p")
-generateEmbedding("Hello world").then((embedding) => console.log(embedding));
+// generateEmbedding("Hello world").then((embedding) => console.log(embedding));
