@@ -13,7 +13,6 @@ const validateApiKey = () => {
 
 const generateEmbedding = async (text) => {
     try {
-        // Validate API key first
         validateApiKey();
 
         const model = "sentence-transformers/all-MiniLM-L6-v2";
@@ -34,10 +33,9 @@ const generateEmbedding = async (text) => {
             throw new Error("Invalid response from Hugging Face API");
         }
 
-        return response.data[0]; // Embedding result
+        return response.data[0];
     } catch (error) {
         if (error.response) {
-            // Handle specific HTTP errors
             switch (error.response.status) {
                 case 401:
                     throw new Error("Invalid Hugging Face API token. Please check your HUGGING_FACE_TOKEN environment variable.");

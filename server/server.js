@@ -9,13 +9,12 @@ const documentRoutes = require("./routes/documentRoutes");
 const qaRoutes = require("./routes/qaRoutes");
 
 const app = express();
-console.log("MongoDB URI:", process.env.MONGO_URI);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
 // Connect to MongoDB
-connectDB("mongodb://localhost:27017/chat-doc-db");
+connectDB(MONGO_URI);
 
 // Serve the uploads folder as static
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

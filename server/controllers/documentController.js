@@ -7,10 +7,9 @@ const pdfParse = require('pdf-parse');
 
 const uploadDocuments = async (req, res) => {
     console.log("[uploadDocuments] Starting document upload process");
-    const uploadedFiles = [];  // Track files that need cleanup
+    const uploadedFiles = [];
 
     try {
-        // Check for files
         console.log("[uploadDocuments] Checking uploaded files...");
         if (!req.files || req.files.length === 0) {
             console.log("[uploadDocuments] Error: No files found in request");
@@ -21,12 +20,11 @@ const uploadDocuments = async (req, res) => {
         const uploadedDocs = [];
 
         for (const file of req.files) {
-            uploadedFiles.push(file);  // Add to cleanup tracking
+            uploadedFiles.push(file);
             console.log(`[uploadDocuments] Processing file: ${file.originalname}`);
             let text = "";
             const filePath = file.path;
 
-            // File type handling
             console.log(`[uploadDocuments] File type: ${file.mimetype}`);
             if (file.mimetype === "application/pdf") {
                 try {

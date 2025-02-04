@@ -4,12 +4,10 @@ const path = require("path");
 
 const uploadDir = path.join("uploads");
 
-// Ensure the uploads directory exists
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Configure multer storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
@@ -19,7 +17,6 @@ const storage = multer.diskStorage({
     }
 });
 
-// Allow multiple file uploads
 const upload = multer({ storage });
 
 module.exports = upload;
