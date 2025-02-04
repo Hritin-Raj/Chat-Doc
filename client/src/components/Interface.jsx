@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { Upload, Send, FileText, Play, Delete } from "lucide-react";
+import { Upload, Send, FileText, Play, Delete, Loader } from "lucide-react";
 import {
   Button,
   TextField,
@@ -8,6 +8,7 @@ import {
   Card,
   CardContent,
   Typography,
+  Alert,
 } from "@mui/material";
 
 const DocumentQABot = () => {
@@ -18,6 +19,7 @@ const DocumentQABot = () => {
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
+  const [processingError, setProcessingError] = useState("");
   const fileInputRef = useRef(null);
   const chatEndRef = useRef(null);
 
@@ -44,6 +46,8 @@ const DocumentQABot = () => {
     }
 
     setUploadedFiles((prev) => [...prev, newFile]);
+    // Clear the input value to allow uploading the same file again
+    event.target.value = null;
   };
 
   const removeFile = (index) => {
@@ -51,13 +55,17 @@ const DocumentQABot = () => {
   };
 
   const processFiles = async () => {
-    if (uploadedFiles.length === 0) return alert("No files to process");
+    if (uploadedFiles.length === 0) {
+      setProcessingError("No files to process");
+      return;
+    }
 
     setProcessing(true);
+    setProcessingError("");
     const formData = new FormData();
 
     uploadedFiles.forEach((file) => {
-      formData.append("documents", file);
+      formData.append("documents", file); // Make sure this matches your backend expectation
     });
 
     try {
@@ -65,34 +73,52 @@ const DocumentQABot = () => {
         "http://localhost:5000/api/documents/upload",
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            console.log(`Upload Progress: ${percentCompleted}%`);
+          },
         }
       );
 
-      if (response.data.success) {
-        setProcessedFiles(response.data.documents);
-        setUploadedFiles([]); // Clear uploaded files after processing
-      } else {
-        alert("Error processing files");
-      }
+      // Update processed files with the response data
+      const newProcessedFiles = response.data.documents.map((doc) => ({
+        id: doc.documentId,
+        name: doc.name,
+        textLength: doc.textLength,
+        chunksCount: doc.chunksCount,
+      }));
+
+      setProcessedFiles((prev) => [...prev, ...newProcessedFiles]);
+      setUploadedFiles([]); // Clear uploaded files after successful processing
+      setProcessingError("");
     } catch (error) {
-      console.error("Upload failed:", error);
-      alert("Failed to upload and process files");
+      console.error("Processing failed:", error);
+      setProcessingError(
+        error.response?.data?.error ||
+          "Failed to process files. Please try again."
+      );
     } finally {
       setProcessing(false);
     }
   };
 
   const toggleFileSelection = (file) => {
-    if (selectedFiles.includes(file)) {
-      setSelectedFiles(selectedFiles.filter((f) => f !== file));
-    } else {
-      if (selectedFiles.length < 3) {
-        setSelectedFiles([...selectedFiles, file]);
+    setSelectedFiles((prev) => {
+      if (prev.find((f) => f.id === file.id)) {
+        return prev.filter((f) => f.id !== file.id);
       } else {
-        alert("You can select up to 3 documents at a time");
+        if (prev.length >= 3) {
+          alert("You can select up to 3 documents at a time");
+          return prev;
+        }
+        return [...prev, file];
       }
-    }
+    });
   };
 
   const handleQuestionSubmit = async (e) => {
@@ -124,33 +150,56 @@ const DocumentQABot = () => {
     setCurrentQuestion("");
   };
 
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar - Processed Files */}
-      <div className="w-64 bg-white border-r p-4">
-        <Typography variant="h6">Documents</Typography>
-        {processedFiles.map((file, index) => (
-          <div
-            key={index}
-            className={`p-2 rounded cursor-pointer ${
-              selectedFiles.includes(file) ? "bg-blue-200" : "hover:bg-gray-100"
-            }`}
-            onClick={() => toggleFileSelection(file)}
-          >
-            <FileText className="h-4 w-4 inline-block mr-2" />
-            {file.name}
-          </div>
-        ))}
+      <div className="w-64 bg-white border-r p-4 overflow-y-auto">
+        <div className="mb-4">
+          <Typography variant="h6" className="mb-2">
+            Processed Documents
+          </Typography>
+          {processedFiles.length === 0 ? (
+            <Typography variant="body2" color="textSecondary">
+              No documents processed yet
+            </Typography>
+          ) : (
+            processedFiles.map((file) => (
+              <div
+                key={file.id}
+                className={`p-3 mb-2 rounded-lg cursor-pointer transition-colors ${
+                  selectedFiles.find((f) => f.id === file.id)
+                    ? "bg-blue-100 border border-blue-300"
+                    : "hover:bg-gray-100 border border-gray-200"
+                }`}
+                onClick={() => toggleFileSelection(file)}
+              >
+                <div className="flex items-center">
+                  <FileText className="h-4 w-4 mr-2 text-blue-600" />
+                  <div>
+                    <Typography variant="body2" className="font-medium">
+                      {file.name}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      {file.chunksCount} chunks
+                    </Typography>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col p-4">
         <Card>
           <CardContent>
-            <Typography variant="h5">Document Q&A Bot</Typography>
-            <Typography variant="body2" color="textSecondary">
-              Upload PDFs and ask questions about their content.
+            <Typography variant="h5" className="mb-2">
+              Document Q&A Bot
             </Typography>
+
+            {/* File Upload Section */}
             <div className="border-2 border-dashed rounded-lg p-4 mt-4">
               <input
                 type="file"
@@ -163,42 +212,63 @@ const DocumentQABot = () => {
                 variant="outlined"
                 onClick={() => fileInputRef.current?.click()}
                 startIcon={<Upload />}
-                disabled={uploadedFiles.length >= 5}
+                disabled={processing || uploadedFiles.length >= 5}
               >
                 Upload PDF ({uploadedFiles.length}/5)
               </Button>
             </div>
 
-            {/* Uploaded Files */}
+            {/* Uploaded Files List */}
             {uploadedFiles.length > 0 && (
               <div className="mt-4">
-                <Typography variant="subtitle1">Uploaded Files</Typography>
+                <Typography variant="subtitle1">Ready to Process</Typography>
                 {uploadedFiles.map((file, index) => (
                   <div
                     key={index}
-                    className="flex justify-between p-2 border rounded mt-2"
+                    className="flex items-center justify-between p-2 border rounded mt-2"
                   >
-                    <span>{file.name}</span>
-                    <Button onClick={() => removeFile(index)}>
-                      <Delete className="h-4 w-4" />
+                    <div className="flex items-center">
+                      <FileText className="h-4 w-4 mr-2" />
+                      <span>{file.name}</span>
+                    </div>
+                    <Button
+                      onClick={() => removeFile(index)}
+                      disabled={processing}
+                    >
+                      <Delete className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Process Button */}
+            {/* Process Button and Error Message */}
             {uploadedFiles.length > 0 && (
-              <Button
-                onClick={processFiles}
-                disabled={processing}
-                startIcon={
-                  processing ? <CircularProgress size={20} /> : <Play />
-                }
-                className="mt-4"
-              >
-                {processing ? "Processing..." : "Process Files"}
-              </Button>
+              <div className="mt-4">
+                <Button
+                  variant="contained"
+                  onClick={processFiles}
+                  disabled={processing}
+                  className="w-full"
+                >
+                  {processing ? (
+                    <div className="flex items-center">
+                      <Loader className="animate-spin h-5 w-5 mr-2" />
+                      Processing Files...
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <Play className="h-5 w-5 mr-2" />
+                      Process Files
+                    </div>
+                  )}
+                </Button>
+                {processingError && (
+                  <Alert severity="error" className="mt-2">
+                    {processingError}
+                  </Alert>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>

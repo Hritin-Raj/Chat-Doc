@@ -1,23 +1,23 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import path from "path";
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const path = require("path");
 dotenv.config();
 
-import { connectDB } from "./config/db.js";
-import documentRoutes from "./routes/documentRoutes.js";
-import qaRoutes from "./routes/qaRoutes.js";
+const { connectDB } = require("./config/db");
+const documentRoutes = require("./routes/documentRoutes");
+const qaRoutes = require("./routes/qaRoutes");
 
 const app = express();
 console.log("MongoDB URI:", process.env.MONGO_URI);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
-// connectDB(`${MONGO_URI}`);
+
+// Connect to MongoDB
 connectDB("mongodb://localhost:27017/chat-doc-db");
 
 // Serve the uploads folder as static
-const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Middleware

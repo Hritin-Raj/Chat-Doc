@@ -1,6 +1,6 @@
-import multer from "multer";
-import fs from "fs";
-import path from "path";
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
 const uploadDir = path.join("uploads");
 
@@ -22,4 +22,4 @@ const storage = multer.diskStorage({
 // Allow multiple file uploads
 const upload = multer({ storage });
 
-export default upload;
+module.exports = upload;

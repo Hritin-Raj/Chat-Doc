@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const ChunkSchema = mongoose.Schema({
     documentId: { type: mongoose.Schema.Types.ObjectId, ref: 'documents' },
@@ -7,4 +7,4 @@ const ChunkSchema = mongoose.Schema({
 });
 
 const Chunks = mongoose.model('chunks', ChunkSchema);
-export default Chunks;
+module.exports = Chunks;
