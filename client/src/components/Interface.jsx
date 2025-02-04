@@ -24,6 +24,13 @@ const DocumentQABot = () => {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
+    axios.get("http://localhost:5000/api/documents/fetch")
+      .then(response => setProcessedFiles(response.data.documents))
+      .catch(error => console.error("Error fetching documents:", error));
+  }, []);
+  
+
+  useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [questions]);
 
@@ -166,7 +173,7 @@ const DocumentQABot = () => {
           ) : (
             processedFiles.map((file) => (
               <div
-                key={file.id}
+                key={file.id || file._id}  // Ensure the key is unique
                 className={`p-3 mb-2 rounded-lg cursor-pointer transition-colors ${
                   selectedFiles.find((f) => f.id === file.id)
                     ? "bg-blue-100 border border-blue-300"
@@ -187,6 +194,7 @@ const DocumentQABot = () => {
                 </div>
               </div>
             ))
+            
           )}
         </div>
       </div>
