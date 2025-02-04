@@ -9,6 +9,7 @@ dotenv.config();
 const HF_API_KEY = process.env.HUGGING_FACE_TOKEN;
 
 export const answerQuestion = async (req, res) => {
+    console.log("qa")
     try {
         const { documentIds, question } = req.body;
 

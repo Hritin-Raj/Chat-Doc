@@ -24,9 +24,14 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  res.header("Cross-Origin-Embedder-Policy", "require-corp");
+  res.header("Cross-Origin-Opener-Policy", "same-origin");
+  next();
+});
 
 // Routes
-app.use('/api/documents', documentRoutes);
-app.use('/api/qa', qaRoutes);
+app.use("/api/documents", documentRoutes);
+app.use("/api/qa", qaRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
