@@ -72,20 +72,25 @@ npm install
 cd ../client  
 npm install  
 
+```
+
 # Create a .env file in the backend/ folder and add:
 MONGO_URI=mongodb+srv://your_mongo_url
 PORT=5000
 
 # Start the backend
+```sh
 cd backend  
 node server.js  
+```
 
 # Start the frontend
+```sh
 cd frontend  
 npm run dev  
+```
 
-
-
+---
 
 ## ⚡ API Endpoints  
 
@@ -125,8 +130,12 @@ npm run dev
 🔹 **Support for more file formats** (TXT, DOCX)  
 🔹 **Deployment on AWS/Render**  
 
+---
+
 ## 📝 Contributing
 Contributions are welcome! Feel free to open an issue or submit a pull request.
+
+---
 
 ## 🔗 License
 This project is not licensed.
