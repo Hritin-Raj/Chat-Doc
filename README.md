@@ -74,17 +74,17 @@ npm install
 
 ```
 
-# Create a .env file in the backend/ folder and add:
+### Create a .env file in the backend/ folder and add:
 MONGO_URI=mongodb+srv://your_mongo_url
 PORT=5000
 
-# Start the backend
+### Start the backend
 ```sh
 cd backend  
 node server.js  
 ```
 
-# Start the frontend
+### Start the frontend
 ```sh
 cd frontend  
 npm run dev  
